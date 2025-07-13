@@ -35,7 +35,7 @@ export const LoginAccount = actionClient
       }) 
     
 
-      redirect("/")
+      redirect("/onboarding")
       return {success : "Login Successful"}
     }
 
