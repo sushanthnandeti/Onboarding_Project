@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
 import { UpdateUserOnboarding } from '@/server/actions/onboarding'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
@@ -43,15 +42,13 @@ const FIELD_TYPES: Record<string, "input" | "textarea" | "select" | "radio"> = {
 
 const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert", "Master"]
 
-
 export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState<number>(1)
-  const [formData, setFormData] = useState<any>({})
+  const [formData, setFormData] = useState<Record<string, string>>({})
   const [assignments, setAssignments] = useState<Record<number, string[]> | null>(null)
   const [loading, setLoading] = useState(true)
 
-
-  const form = useForm({
+  const form = useForm<Record<string, string>>({
     resolver: zodResolver(OnboardingSchema),
     defaultValues: {},
   })
@@ -69,16 +66,13 @@ export default function MultiStepForm() {
   useEffect(() => {
     if (!loading && assignments) {
       const stepFields = assignments[currentStep] || []
-      const defaultValues = stepFields.reduce((acc: Record<string, any>, key: string) => {
+      const defaultValues = stepFields.reduce((acc: Record<string, string>, key: string) => {
         acc[key] = formData[key] || ""
         return acc
-      }, {} as Record<string, any>)
+      }, {} as Record<string, string>)
       form.reset(defaultValues)
     }
-
   }, [loading, assignments, currentStep, formData, form])
-
-  const router = useRouter()
 
   const { execute: updateOnboarding } = useAction(UpdateUserOnboarding, {
     onSuccess(data) {
@@ -95,20 +89,20 @@ export default function MultiStepForm() {
   const keyMap: Record<string, string> = {
     dob: "birthdate",
     location: "streetAddress",
-   
+    zipcode: "zipCode",
   };
 
-  const handleStep = (step: number, data: any) => {
-    setFormData((prev: any) => ({ ...prev, ...data }))
+  const handleStep = (step: number, data: Record<string, string>) => {
+    setFormData((prev) => ({ ...prev, ...data }))
     setCurrentStep(step)
   }
 
-  const finalSubmit = (values: any) => {
+  const finalSubmit = (values: Record<string, string>) => {
     const allData = { ...formData, ...values };
     const mappedData = Object.fromEntries(
       Object.entries(allData).map(([k, v]) => [keyMap[k] || k, v])
     );
-    updateOnboarding(mappedData as any);
+    updateOnboarding(mappedData as Record<string, string>);
   };
 
   const progressValue = (currentStep / 3) * 100
@@ -119,7 +113,7 @@ export default function MultiStepForm() {
 
   const stepFields = assignments[currentStep] || []
 
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: Record<string, string>) => {
     if (currentStep < 3) {
       handleStep(currentStep + 1, values)
     } else {
@@ -154,13 +148,10 @@ export default function MultiStepForm() {
               </div>
               <p className="text-center text-gray-600 text-sm mt-6">
                 Already have an account?{" "}
-                    <Link
-                      href="/login"
-                      className="text-blue-600 hover:underline"
-                    >
-                       Log In
-                    </Link>
-      </p>
+                <Link href="/login" className="text-blue-600 hover:underline">
+                  Log In
+                </Link>
+              </p>
             </form>
           </Form>
         </FormProvider>
@@ -169,9 +160,7 @@ export default function MultiStepForm() {
   )
 }
 
-
-
-function DynamicFields({ fields, form }: { fields: string[], form: any }) {
+function DynamicFields({ fields, form }: { fields: string[], form: ReturnType<typeof useForm<Record<string, string>>> }) {
   return (
     <>
       {fields.map((field) => {
