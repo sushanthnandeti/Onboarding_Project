@@ -39,7 +39,7 @@ import {
     compensation: text('compensation'),
   })
 
-// Admin onboarding config table
+
 export const onboarding_components = pgTable("onboarding_components", {
   id: serial("id").primaryKey(),
   component: text("component").notNull(),
