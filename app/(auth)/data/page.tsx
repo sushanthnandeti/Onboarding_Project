@@ -27,7 +27,7 @@ export default async function DataPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {allUsers.map((user, idx) => (
+            {allUsers.map((user) => (
               <TableRow key={user.id} className="bg-blue-50">
                 <TableCell>{user.firstName}</TableCell>
                 <TableCell>{user.lastName}</TableCell>
