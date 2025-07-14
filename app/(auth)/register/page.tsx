@@ -13,7 +13,7 @@ function page() {
         <RegisterForm />
       </div>
     </div>  
-  )
+  ) 
 }
 
 export default page

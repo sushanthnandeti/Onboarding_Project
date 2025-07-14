@@ -14,6 +14,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { UpdateUserOnboarding } from '@/server/actions/onboarding'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
+import { signOut } from "next-auth/react";
 
 const FIELD_LABELS: Record<string, string> = {
   aboutMe: "About Me",
@@ -84,7 +86,8 @@ export default function MultiStepForm() {
         toast.error(data.data.error)
       } else {
         toast.success("Onboarding complete!")
-        router.push("/")
+        // Log out and redirect to login or register
+        signOut({ callbackUrl: "/register" });
       }
     },
   })
@@ -149,6 +152,15 @@ export default function MultiStepForm() {
                   {currentStep === 3 ? "Submit" : "Next"}
                 </Button>
               </div>
+              <p className="text-center text-gray-600 text-sm mt-6">
+                Already have an account?{" "}
+                    <Link
+                      href="/login"
+                      className="text-blue-600 hover:underline"
+                    >
+                       Log In
+                    </Link>
+      </p>
             </form>
           </Form>
         </FormProvider>
