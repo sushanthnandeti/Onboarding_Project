@@ -46,10 +46,10 @@ const LoginForm = () => {
   return (
     <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full mx-auto">
       <h3 className="text-3xl font-bold text-center text-gray-800 mb-2">
-        Welcome Back
+        Welcome!
       </h3>
       <p className="text-gray-600 text-sm text-center mb-8">
-        👋 Please enter your credentials to log in
+        Please enter your credentials to log in
       </p>
       <Form {...form}>
         <form

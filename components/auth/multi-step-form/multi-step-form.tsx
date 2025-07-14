@@ -80,7 +80,6 @@ export default function MultiStepForm() {
         toast.error(data.data.error)
       } else {
         toast.success("Onboarding complete!")
-        // Log out and redirect to login or register
         signOut({ callbackUrl: "/register" });
       }
     },
@@ -89,7 +88,6 @@ export default function MultiStepForm() {
   const keyMap: Record<string, string> = {
     dob: "birthdate",
     location: "streetAddress",
-    zipcode: "zipCode",
   };
 
   const handleStep = (step: number, data: Record<string, string>) => {

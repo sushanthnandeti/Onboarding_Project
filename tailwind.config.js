@@ -10,7 +10,7 @@ module.exports = {
     theme: {
       extend: {
         backgroundImage: {
-          formImage: "url('/form.png')",
+          formImage: "url('/form2.png')",
         },
         borderRadius: {
           lg: 'var(--radius)',

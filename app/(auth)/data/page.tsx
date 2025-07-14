@@ -8,12 +8,12 @@ export default async function DataPage() {
   const allUsers = await db.select().from(users);
 
   return (
-    <div className="p-8 bg-blue-50 min-h-screen">
+    <div className="p-8 min-h-screen">
       <h1 className="text-3xl font-bold mb-4 text-black-700 text-center">Users Data</h1>
       <div className="overflow-x-auto rounded-lg border border-blue-200">
         <Table>
           <TableHeader>
-            <TableRow className="bg-blue-400">
+            <TableRow className="bg-blue-500">
               <TableHead className="text-black">First Name</TableHead>
               <TableHead className="text-black">Last Name</TableHead>
               <TableHead className="text-black">Email</TableHead>

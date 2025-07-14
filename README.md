@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Custom Onboarding Flow
+
+A full-stack onboarding app with a dynamic, admin-configurable multi-step user onboarding flow.  
+Built with Next.js, React, Drizzle ORM, NextAuth.js, and PostgreSQL.
+
+---
+
+## Features
+
+- **User Onboarding Wizard**
+  - Three-step onboarding with a progress bar.
+  - Collects email, password, and customizable onboarding fields (About Me, Address, Birthdate, etc.).
+  - User data is saved to a PostgreSQL database.
+
+- **Admin Section (`/admin`)**
+  - Admins can assign which onboarding fields appear on each step (2nd and 3rd pages).
+  - At least one field per page is enforced.
+  - No authentication required for demo.
+
+- **Data Table (`/data`)**
+  - View all user data in a simple HTML table.
+  - No authentication required.
+
+- **Session Management**
+  - After onboarding, the user is logged out so new users can onboard in the same browser.
+
+---
+
+## Tech Stack
+
+- **Frontend:** Next.js (App Router), React, shadcn/ui, react-hook-form, Zod
+- **Backend:** Next.js API routes, Drizzle ORM, PostgreSQL
+- **Auth:** NextAuth.js (credentials provider)
+- **Deployment:** Vercel
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the repo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+git clone <your-repo-url>
+cd <your-repo>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Set up environment variables
 
-## Learn More
+- Copy `.env.example` to `.env.local` and fill in your database and auth secrets.
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Run migrations
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+npm run migrate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 5. Start the dev server
 
-## Deploy on Vercel
+```sh
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 6. Access the app
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- User onboarding: `/register`
+- Admin UI: `/admin`
+- Data table: `/data`
+
+---
+
+## Deployment
+
+- Deploy to [Vercel](https://vercel.com/) and set your environment variables in the dashboard.
+
+---
+
+## Folder Structure
+
+```
+components/
+  auth/
+    multi-step-form/
+      multi-step-form.tsx
+    register-form.tsx
+    login-form.tsx
+    logout-form.tsx
+  ui/
+server/
+  actions/
+    onboarding.ts
+    register.ts
+    login.ts
+  schema.ts
+  db.ts
+  auth.ts
+app/
+  (auth)/
+    admin/
+    data/
+    onboarding/
+    register/
+    login/
+    api/
+  layout.tsx
+  page.tsx
+```
+
+---
+
+## Notes
+
+- The admin and data table sections are intentionally left unauthenticated for demo/testing purposes.
+- After onboarding, the user is logged out so a new user can register and onboard in the same browser session.
+- The onboarding flow and admin UI are fully dynamic and driven by the database configuration.
+
+---
