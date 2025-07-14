@@ -4,7 +4,8 @@ import {
     text, 
     timestamp, 
     integer, 
-    boolean
+    boolean,
+    serial
   } from "drizzle-orm/pg-core"
   
   export const SkillLevelEnum = pgEnum("skill_level", [
@@ -34,5 +35,27 @@ import {
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
     skillLevel: SkillLevelEnum("skill_level").notNull().default("Beginner"),
+    onsite: text('onsite'),
+    compensation: text('compensation'),
   })
+
+// Admin onboarding config table
+export const onboarding_components = pgTable("onboarding_components", {
+  id: serial("id").primaryKey(),
+  component: text("component").notNull(),
+  page: integer("page").notNull(), // 1, 2, or 3
+});
+
+export const ALL_COMPONENTS = [
+  { key: "aboutMe", label: "About Me" },
+  { key: "birthdate", label: "Birthdate" },
+  { key: "streetAddress", label: "Address" },
+  { key: "city", label: "City" },
+  { key: "state", label: "State" },
+  { key: "zipcode", label: "Zip Code" },
+  { key: "skillLevel", label: "Skill Level" },
+  { key: "onsite", label: "Onsite Willingness" },
+  { key: "compensation", label: "Compensation" },
+];
+
 

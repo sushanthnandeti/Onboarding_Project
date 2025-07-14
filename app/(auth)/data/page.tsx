@@ -4,7 +4,7 @@ import React from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
 export default async function DataPage() {
-  // Fetch all users
+  
   const allUsers = await db.select().from(users);
 
   return (

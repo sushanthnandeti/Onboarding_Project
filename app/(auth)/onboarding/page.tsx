@@ -14,7 +14,7 @@ export default async function OnboardingPage() {
       <div className="sticky top-0 h-screen w-1/3 bg-blue-400 bg-formImage bg-cover" />
       <div className="w-2/3 flex items-center justify-center">
         <MultiStepForm />
-      </div>
+      </div>  
     </div>
   );
 }

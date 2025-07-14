@@ -1,11 +1,11 @@
 {
-  "id": "32a4813a-c78c-4c41-a1aa-cb259248f71c",
-  "prevId": "f73ca71a-c268-4090-a104-10c20f909e6f",
+  "id": "86036c31-83c0-4568-9c2f-e4f0ccf64146",
+  "prevId": "8a8c0eb5-385c-450e-b8ad-ab4ec35254a0",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.onboarding_page_components": {
-      "name": "onboarding_page_components",
+    "public.onboarding_components": {
+      "name": "onboarding_components",
       "schema": "",
       "columns": {
         "id": {
@@ -14,15 +14,15 @@
           "primaryKey": true,
           "notNull": true
         },
-        "page_number": {
-          "name": "page_number",
-          "type": "integer",
+        "component": {
+          "name": "component",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "component_key": {
-          "name": "component_key",
-          "type": "text",
+        "page": {
+          "name": "page",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }

@@ -22,6 +22,20 @@
       "when": 1752396946440,
       "tag": "0002_black_azazel",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1752438830658,
+      "tag": "0003_tired_katie_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1752451112300,
+      "tag": "0004_furry_gorgon",
+      "breakpoints": true
     }
   ]
 }

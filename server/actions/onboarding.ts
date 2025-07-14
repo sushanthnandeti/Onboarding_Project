@@ -18,12 +18,14 @@ export const UpdateUserOnboarding = actionClient
     await db.update(users)
       .set({
         aboutMe: parsedInput.aboutMe,
-        streetAddress: parsedInput.location,
+        streetAddress: parsedInput.streetAddress,
         city: parsedInput.city,
         state: parsedInput.state,
         zipCode: parsedInput.zipcode,
-        birthdate: parsedInput.dob,
+        birthdate: parsedInput.birthdate,
         skillLevel: parsedInput.skillLevel,
+        onsite: parsedInput.onsite,
+        compensation: parsedInput.compensation,
       })
       .where(eq(users.email, session.user.email));
 
