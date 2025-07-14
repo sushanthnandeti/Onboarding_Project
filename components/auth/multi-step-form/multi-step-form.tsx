@@ -14,7 +14,6 @@ import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { UpdateUserOnboarding } from '@/server/actions/onboarding'
 import toast from 'react-hot-toast'
-import Link from 'next/link'
 
 const FIELD_LABELS: Record<string, string> = {
   aboutMe: "About Me",
