@@ -6,6 +6,7 @@ import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { users } from "../schema";
 import { auth } from "../auth";
+import { revalidatePath } from "next/cache";
 
 export const UpdateUserOnboarding = actionClient
   .inputSchema(OnboardingSchema)
@@ -28,6 +29,9 @@ export const UpdateUserOnboarding = actionClient
         compensation: parsedInput.compensation,
       })
       .where(eq(users.email, session.user.email));
+
+    // Revalidate the data page to show updated user data
+    revalidatePath("/data");
 
     return { success: true };
   }); 

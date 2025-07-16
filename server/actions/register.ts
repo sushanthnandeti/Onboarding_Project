@@ -6,8 +6,7 @@ import bcrypt from "bcrypt"
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { users } from "../schema";
-
-
+import { revalidatePath } from "next/cache";
 
 export const RegisterAccount = actionClient
   .inputSchema(RegisterSchema)
@@ -29,6 +28,9 @@ export const RegisterAccount = actionClient
         email: email,
         password: hashedPassword,
       });
+
+      // Revalidate the data page to show new user
+      revalidatePath("/data");
 
       return {success: "Account created successfully"}
     }
