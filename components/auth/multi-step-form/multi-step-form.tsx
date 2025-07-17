@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { useAction } from 'next-safe-action/hooks'
 import { UpdateUserOnboarding } from '@/server/actions/onboarding'
+import { GetOnboardingAssignments } from '@/server/actions/assignments'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { signOut } from "next-auth/react";
@@ -119,15 +120,24 @@ export default function MultiStepForm() {
     resolver: zodResolver(stepSchema)
   })
 
-  useEffect(() => {
-    async function fetchAssignments() {
-      const res = await fetch('/api/auth/assignments');
-      const assignments = await res.json();
-      setAssignments(assignments);
+  const { execute: getAssignments } = useAction(GetOnboardingAssignments, {
+    onSuccess(data) {
+      if (data.data?.data) {
+        setAssignments(data.data.data);
+      } else if (data.data?.error) {
+        toast.error(data.data.error);
+      }
+      setLoading(false);
+    },
+    onError(error) {
+      toast.error("Failed to load assignments");
       setLoading(false);
     }
-    fetchAssignments();
-  }, []);
+  });
+
+  useEffect(() => {
+    getAssignments({});
+  }, [getAssignments]);
 
   useEffect(() => {
     if (!loading && assignments) {
