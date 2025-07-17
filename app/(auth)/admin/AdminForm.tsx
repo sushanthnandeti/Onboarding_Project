@@ -134,10 +134,7 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
           </div>
         )}
         
-        <div className="mt-6 flex justify-between items-center">
-          <div className="text-sm text-gray-600">
-            Total assigned: {getAllAssignedFields().length} / {ALL_COMPONENTS.length} fields
-          </div>
+        <div className="mt-6 flex justify-center">
           <Button type="submit" disabled={loading}>
             {loading ? "Saving..." : "Save Configuration"}
           </Button>
