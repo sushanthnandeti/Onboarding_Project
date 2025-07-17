@@ -105,7 +105,7 @@ const createStepSchema = (stepFields: string[]) => {
 
 export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState<number>(1)
-  const [formData, setFormData] = useState<Record<string, string>>({})
+  const [formData, setFormData] = useState<Record<string, unknown>>({})
   const [assignments, setAssignments] = useState<Record<number, string[]> | null>(null)
   const [loading, setLoading] = useState(true)
   const [stepFields, setStepFields] = useState<string[]>([])
@@ -129,7 +129,7 @@ export default function MultiStepForm() {
       }
       setLoading(false);
     },
-    onError(error) {
+    onError() {
       toast.error("Failed to load assignments");
       setLoading(false);
     }
@@ -181,12 +181,12 @@ export default function MultiStepForm() {
     location: "streetAddress",
   };
 
-  const handleStep = (step: number, data: Record<string, any>) => {
+  const handleStep = (step: number, data: Record<string, unknown>) => {
     setFormData((prev) => ({ ...prev, ...data }))
     setCurrentStep(step)
   }
 
-  const finalSubmit = (values: Record<string, any>) => {
+  const finalSubmit = (values: Record<string, unknown>) => {
     const allData = { ...formData, ...values };
     
     // Flatten grouped address data for database storage
@@ -201,7 +201,7 @@ export default function MultiStepForm() {
     const mappedData = Object.fromEntries(
       Object.entries(processedData).map(([k, v]) => [keyMap[k] || k, v])
     );
-    updateOnboarding(mappedData as any);
+    updateOnboarding(mappedData as Parameters<typeof updateOnboarding>[0]);
   };
 
   const progressValue = (currentStep / 3) * 100
@@ -261,6 +261,7 @@ export default function MultiStepForm() {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function DynamicFields({ fields, form }: { fields: string[], form: ReturnType<typeof useForm<any>> }) {
   const renderField = (field: string) => {
     const config = FIELD_CONFIG[field];
