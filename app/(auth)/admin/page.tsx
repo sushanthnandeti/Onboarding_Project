@@ -11,12 +11,12 @@ export default async function AdminPage() {
     "use server";
     const { 1: page1, 2: page2, 3: page3 } = selected;
   
-    // Validate that each page has at least one component
+ 
     if (page1.length === 0 || page2.length === 0 || page3.length === 0) {
       throw new Error("Each page must have at least one component.");
     }
 
-    // Validate that no field is assigned to multiple pages
+
     const allAssignedFields = [...page1, ...page2, ...page3];
     const uniqueFields = new Set(allAssignedFields);
     
@@ -24,7 +24,7 @@ export default async function AdminPage() {
       throw new Error("Each field can only be assigned to one page. Duplicate assignments detected.");
     }
 
-    // Validate that all required fields are assigned
+
     const requiredFields = ALL_COMPONENTS.map(comp => comp.key);
     const missingFields = requiredFields.filter(field => !allAssignedFields.includes(field));
     
@@ -32,7 +32,7 @@ export default async function AdminPage() {
       throw new Error(`Missing required fields: ${missingFields.join(',')}`);
     }
 
-    // Clear existing assignments and insert new ones
+  
     await db.delete(onboarding_components);
     
     for (const c of page1) {
@@ -46,7 +46,7 @@ export default async function AdminPage() {
     }
     
     revalidatePath("/admin");
-    revalidatePath("/onboarding"); // Also revalidate the onboarding page
+    revalidatePath("/onboarding");
   }
 
   return (

@@ -15,42 +15,137 @@ import { UpdateUserOnboarding } from '@/server/actions/onboarding'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { signOut } from "next-auth/react";
+import { z } from 'zod'
 
-const FIELD_LABELS: Record<string, string> = {
-  aboutMe: "About Me",
-  birthdate: "Date of Birth",
-  streetAddress: "Street Address",
-  city: "City",
-  state: "State",
-  zipcode: "Zip Code",
-  skillLevel: "Skill Level",
-  onsite: "Are you willing to work onsite?",
-  compensation: "Required Compensation",
-}
+// UI Field Configuration
+type FieldConfig = {
+  label: string;
+  type: "input" | "textarea" | "select" | "radio";
+  inputType?: "text" | "date";
+  placeholder?: string;
+  maxLength?: number;
+  options?: string[];
+  hint?: string;
+};
 
-const FIELD_TYPES: Record<string, "input" | "textarea" | "select" | "radio"> = {
-  aboutMe: "textarea",
-  birthdate: "input",
-  streetAddress: "input",
-  city: "input",
-  state: "input",
-  zipcode: "input",
-  skillLevel: "select",
-  onsite: "radio",
-  compensation: "textarea",
-}
+const FIELD_CONFIG: Record<string, FieldConfig> = {
+  aboutMe: {
+    label: "About Me",
+    type: "textarea",
+    placeholder: "Tell us about yourself",
+    hint: "(min 10 characters, required)"
+  },
+  birthdate: {
+    label: "Date of Birth",
+    type: "input",
+    inputType: "date",
+    hint: "(required)"
+  },
+  streetAddress: {
+    label: "Street Address",
+    type: "input",
+    inputType: "text",
+    hint: "(required)"
+  },
+  city: {
+    label: "City",
+    type: "input",
+    inputType: "text",
+    hint: "(required)"
+  },
+  state: {
+    label: "State",
+    type: "input",
+    inputType: "text",
+    hint: "(required)"
+  },
+  zipcode: {
+    label: "Zip Code",
+    type: "input",
+    inputType: "text",
+    maxLength: 10,
+    hint: "(5 or 9 digits, required)"
+  },
+  skillLevel: {
+    label: "Skill Level",
+    type: "select",
+    options: ["Beginner", "Intermediate", "Advanced", "Expert", "Master"],
+    hint: "(required)"
+  },
+  onsite: {
+    label: "Are you willing to work onsite?",
+    type: "radio",
+    options: ["yes", "no"],
+    hint: "(required)"
+  },
+  compensation: {
+    label: "Required Compensation",
+    type: "textarea",
+    placeholder: "Describe your compensation requirements",
+    hint: "(required)"
+  }
+};
 
-const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert", "Master"]
+const STEP_TITLES = {
+  1: "Step 1 - Personal Information",
+  2: "Step 2 - Skill Level & Location", 
+  3: "Step 3 - Preferences & Compensation"
+} as const;
+
+
+const createStepSchema = (stepFields: string[]) => {
+  const schemaFields: Record<string, z.ZodTypeAny> = {};
+  
+  stepFields.forEach(field => {
+    switch (field) {
+      case 'aboutMe':
+        schemaFields[field] = OnboardingSchema.shape.aboutMe;
+        break;
+      case 'birthdate':
+        schemaFields[field] = OnboardingSchema.shape.birthdate;
+        break;
+      case 'streetAddress':
+        schemaFields[field] = OnboardingSchema.shape.streetAddress;
+        break;
+      case 'city':
+        schemaFields[field] = OnboardingSchema.shape.city;
+        break;
+      case 'state':
+        schemaFields[field] = OnboardingSchema.shape.state;
+        break;
+      case 'zipcode':
+        schemaFields[field] = OnboardingSchema.shape.zipcode;
+        break;
+      case 'skillLevel':
+        schemaFields[field] = OnboardingSchema.shape.skillLevel;
+        break;
+      case 'onsite':
+        schemaFields[field] = OnboardingSchema.shape.onsite;
+        break;
+      case 'compensation':
+        schemaFields[field] = OnboardingSchema.shape.compensation;
+        break;
+    }
+  });
+  
+  return z.object(schemaFields);
+};
 
 export default function MultiStepForm() {
   const [currentStep, setCurrentStep] = useState<number>(1)
   const [formData, setFormData] = useState<Record<string, string>>({})
   const [assignments, setAssignments] = useState<Record<number, string[]> | null>(null)
   const [loading, setLoading] = useState(true)
+  const [stepFields, setStepFields] = useState<string[]>([])
 
-  const form = useForm<Record<string, string>>({
-    resolver: zodResolver(OnboardingSchema),
+ 
+  const stepSchema = createStepSchema(stepFields);
+  type StepFormData = z.infer<typeof stepSchema>;
+
+  const form = useForm<StepFormData>({
     defaultValues: {},
+    mode: "onChange",
+    resolver: zodResolver(stepSchema)
   })
 
   useEffect(() => {
@@ -65,8 +160,10 @@ export default function MultiStepForm() {
 
   useEffect(() => {
     if (!loading && assignments) {
-      const stepFields = assignments[currentStep] || []
-      const defaultValues = stepFields.reduce((acc: Record<string, string>, key: string) => {
+      const currentStepFields = assignments[currentStep] || [];
+      setStepFields(currentStepFields);
+      
+      const defaultValues = currentStepFields.reduce((acc: Record<string, string>, key: string) => {
         acc[key] = formData[key] || ""
         return acc
       }, {} as Record<string, string>)
@@ -83,6 +180,10 @@ export default function MultiStepForm() {
         signOut({ callbackUrl: "/register" });
       }
     },
+    onError(error) {
+      toast.error("Something went wrong. Please try again.");
+      console.error("Onboarding error:", error);
+    }
   })
 
   const keyMap: Record<string, string> = {
@@ -90,17 +191,17 @@ export default function MultiStepForm() {
     location: "streetAddress",
   };
 
-  const handleStep = (step: number, data: Record<string, string>) => {
+  const handleStep = (step: number, data: Record<string, any>) => {
     setFormData((prev) => ({ ...prev, ...data }))
     setCurrentStep(step)
   }
 
-  const finalSubmit = (values: Record<string, string>) => {
+  const finalSubmit = (values: Record<string, any>) => {
     const allData = { ...formData, ...values };
     const mappedData = Object.fromEntries(
       Object.entries(allData).map(([k, v]) => [keyMap[k] || k, v])
     );
-    updateOnboarding(mappedData as Record<string, string>);
+    updateOnboarding(mappedData as any);
   };
 
   const progressValue = (currentStep / 3) * 100
@@ -109,13 +210,16 @@ export default function MultiStepForm() {
     return <div>Loading onboarding form...</div>
   }
 
-  const stepFields = assignments[currentStep] || []
-
-  const onSubmit = (values: Record<string, string>) => {
-    if (currentStep < 3) {
-      handleStep(currentStep + 1, values)
-    } else {
-      finalSubmit(values)
+  const onSubmit = async (values: StepFormData) => {
+    try {
+      if (currentStep < 3) {
+        handleStep(currentStep + 1, values)
+      } else {
+        finalSubmit(values)
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   }
 
@@ -123,12 +227,11 @@ export default function MultiStepForm() {
     <div className='w-2/3 p-8 flex flex-col'>
       <div className='mb-8'>
         <h1 className='text-2xl font-bold mb-2'>
-          {currentStep === 1 && "Step 1 - Personal Information"}
-          {currentStep === 2 && "Step 2 - Skill Level & Location"}
-          {currentStep === 3 && "Step 3 - Preferences & Compensation"}
+          {STEP_TITLES[currentStep as keyof typeof STEP_TITLES]}
         </h1>
         <Progress value={progressValue} className='h-2' />
       </div>
+
       <div className='flex-grow flex flex-col justify-center max-w-md mx-auto w-full'>
         <FormProvider {...form}>
           <Form {...form}>
@@ -158,110 +261,70 @@ export default function MultiStepForm() {
   )
 }
 
-function DynamicFields({ fields, form }: { fields: string[], form: ReturnType<typeof useForm<Record<string, string>>> }) {
-  return (
-    <>
-      {fields.map((field) => {
-        if (FIELD_TYPES[field] === "textarea") {
-          return (
-            <FormField
-              key={field}
-              control={form.control}
-              name={field}
-              render={({ field: f }) => (
-                <FormItem>
-                  <FormLabel>{FIELD_LABELS[field]}</FormLabel>
-                  <FormControl>
-                    <Textarea {...f} placeholder={FIELD_LABELS[field]} className="resize-none" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )
-        }
-        if (FIELD_TYPES[field] === "input") {
-          return (
-            <FormField
-              key={field}
-              control={form.control}
-              name={field}
-              render={({ field: f }) => (
-                <FormItem>
-                  <FormLabel>{FIELD_LABELS[field]}</FormLabel>
-                  <FormControl>
-                    <Input {...f} type={field === "birthdate" ? "date" : "text"} placeholder={FIELD_LABELS[field]} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )
-        }
-        if (FIELD_TYPES[field] === "select") {
-          return (
-            <FormField
-              key={field}
-              control={form.control}
-              name={field}
-              render={({ field: f }) => (
-                <FormItem>
-                  <FormLabel>{FIELD_LABELS[field]}</FormLabel>
-                  <FormControl>
-                    <select
-                      {...f}
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      defaultValue={f.value}
-                    >
-                      <option value="">Select your skill level</option>
-                      {SKILL_LEVELS.map(level => (
-                        <option key={level} value={level}>{level}</option>
-                      ))}
-                    </select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )
-        }
-        if (FIELD_TYPES[field] === "radio") {
-          return (
-            <FormField
-              key={field}
-              control={form.control}
-              name={field}
-              render={({ field: f }) => (
-                <FormItem>
-                  <FormLabel>{FIELD_LABELS[field]}</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={f.onChange}
-                      defaultValue={f.value}
-                      className="flex flex-row gap-8 mt-2"
-                    >
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value="yes" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Yes</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <RadioGroupItem value="no" />
-                        </FormControl>
-                        <FormLabel className="font-normal">No</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )
-        }
-        return null
-      })}
-    </>
-  )
+function DynamicFields({ fields, form }: { fields: string[], form: ReturnType<typeof useForm<any>> }) {
+  const renderField = (field: string) => {
+    const config = FIELD_CONFIG[field];
+    if (!config) return null;
+
+    return (
+      <FormField
+        key={field}
+        control={form.control}
+        name={field}
+        render={({ field: f }) => (
+          <FormItem>
+            <FormLabel className="text-sm font-medium">
+              {config.label}
+              {config.hint && <span className="text-gray-500 ml-1">{config.hint}</span>}
+            </FormLabel>
+            <FormControl>
+              {config.type === "textarea" ? (
+                <Textarea 
+                  {...f} 
+                  placeholder={config.placeholder || config.label} 
+                  className="resize-none min-h-[100px]" 
+                />
+              ) : config.type === "input" ? (
+                <Input 
+                  {...f} 
+                  type={config.inputType} 
+                  placeholder={config.label}
+                  maxLength={config.maxLength}
+                />
+              ) : config.type === "select" ? (
+                <select
+                  {...f}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  defaultValue={f.value}
+                >
+                  <option value="">Select your skill level</option>
+                  {config.options?.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              ) : config.type === "radio" ? (
+                <RadioGroup
+                  onValueChange={f.onChange}
+                  defaultValue={f.value}
+                  className="flex flex-row gap-8 mt-2"
+                >
+                  {config.options?.map(option => (
+                    <FormItem key={option} className="flex items-center space-x-2">
+                      <FormControl>
+                        <RadioGroupItem value={option} />
+                      </FormControl>
+                      <FormLabel className="font-normal capitalize">{option}</FormLabel>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              ) : null}
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  };
+
+  return <>{fields.map(renderField)}</>;
 }

@@ -19,13 +19,11 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { RegisterSchema } from "@/types/register-schema";
 
-const RegisterSchema = z.object({
-  email: z.email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+
+const RegisterFormSchema = RegisterSchema.extend({
+  confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
 }).superRefine((data, ctx) => {
   if (data.confirmPassword !== data.password) {
     ctx.addIssue({
@@ -38,8 +36,8 @@ const RegisterSchema = z.object({
 
 const RegisterForm = () => {
   const router = useRouter();
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+  const form = useForm<z.infer<typeof RegisterFormSchema>>({
+    resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -62,7 +60,7 @@ const RegisterForm = () => {
   });
 
   const onSubmit = (
-    values: z.infer<typeof RegisterSchema>
+    values: z.infer<typeof RegisterFormSchema>
   ) => {
     
     execute({

@@ -15,22 +15,22 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Get all assigned fields across all pages
+  
   const getAllAssignedFields = () => {
     return [...selected[1], ...selected[2], ...selected[3]];
   };
 
-  // Check if a field is assigned to a specific page
+
   const isFieldAssignedToPage = (fieldKey: string, page: number) => {
     return selected[page as keyof typeof selected].includes(fieldKey);
   };
 
-  // Check if a field is assigned to any page
+
   const isFieldAssigned = (fieldKey: string) => {
     return getAllAssignedFields().includes(fieldKey);
   };
 
-  // Get which page a field is assigned to
+
   const getFieldAssignedPage = (fieldKey: string): number | null => {
     if (selected[1].includes(fieldKey)) return 1;
     if (selected[2].includes(fieldKey)) return 2;
@@ -38,7 +38,7 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
     return null;
   };
 
-  // Check if a field should be disabled on a specific page
+ 
   const isFieldDisabled = (fieldKey: string, currentPage: number) => {
     const assignedPage = getFieldAssignedPage(fieldKey);
     return assignedPage !== null && assignedPage !== currentPage;
@@ -49,15 +49,15 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
       const newSelected = { ...prev };
       
       if (checked) {
-        // Remove field from all other pages first
+      
         newSelected[1] = newSelected[1].filter(f => f !== fieldKey);
         newSelected[2] = newSelected[2].filter(f => f !== fieldKey);
         newSelected[3] = newSelected[3].filter(f => f !== fieldKey);
         
-        // Add field to current page
+      
         newSelected[page] = [...newSelected[page], fieldKey];
       } else {
-        // Remove field from current page
+        
         newSelected[page] = newSelected[page].filter(f => f !== fieldKey);
       }
       
