@@ -19,10 +19,10 @@ export const UpdateUserOnboarding = actionClient
     await db.update(users)
       .set({
         aboutMe: parsedInput.aboutMe,
-        streetAddress: parsedInput.streetAddress,
-        city: parsedInput.city,
-        state: parsedInput.state,
-        zipCode: parsedInput.zipcode,
+        streetAddress: parsedInput.address.streetAddress,
+        city: parsedInput.address.city,
+        state: parsedInput.address.state,
+        zipCode: parsedInput.address.zipcode,
         birthdate: parsedInput.birthdate,
         skillLevel: parsedInput.skillLevel,
         onsite: parsedInput.onsite,

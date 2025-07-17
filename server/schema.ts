@@ -49,10 +49,7 @@ export const onboarding_components = pgTable("onboarding_components", {
 export const ALL_COMPONENTS = [
   { key: "aboutMe", label: "About Me" },
   { key: "birthdate", label: "Birthdate" },
-  { key: "streetAddress", label: "Address" },
-  { key: "city", label: "City" },
-  { key: "state", label: "State" },
-  { key: "zipcode", label: "Zip Code" },
+  { key: "address", label: "Address" },
   { key: "skillLevel", label: "Skill Level" },
   { key: "onsite", label: "Onsite Willingness" },
   { key: "compensation", label: "Compensation" },

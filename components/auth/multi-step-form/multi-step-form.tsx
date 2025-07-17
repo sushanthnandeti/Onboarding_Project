@@ -20,7 +20,7 @@ import { z } from 'zod'
 // UI Field Configuration
 type FieldConfig = {
   label: string;
-  type: "input" | "textarea" | "select" | "radio";
+  type: "input" | "textarea" | "select" | "radio" | "address-group";
   inputType?: "text" | "date";
   placeholder?: string;
   maxLength?: number;
@@ -41,30 +41,10 @@ const FIELD_CONFIG: Record<string, FieldConfig> = {
     inputType: "date",
     hint: "(required)"
   },
-  streetAddress: {
-    label: "Street Address",
-    type: "input",
-    inputType: "text",
-    hint: "(required)"
-  },
-  city: {
-    label: "City",
-    type: "input",
-    inputType: "text",
-    hint: "(required)"
-  },
-  state: {
-    label: "State",
-    type: "input",
-    inputType: "text",
-    hint: "(required)"
-  },
-  zipcode: {
-    label: "Zip Code",
-    type: "input",
-    inputType: "text",
-    maxLength: 10,
-    hint: "(5 or 9 digits, required)"
+  address: { 
+    label: "Address", 
+    type: "address-group", 
+    hint: "(all address fields required)" 
   },
   skillLevel: {
     label: "Skill Level",
@@ -104,17 +84,8 @@ const createStepSchema = (stepFields: string[]) => {
       case 'birthdate':
         schemaFields[field] = OnboardingSchema.shape.birthdate;
         break;
-      case 'streetAddress':
-        schemaFields[field] = OnboardingSchema.shape.streetAddress;
-        break;
-      case 'city':
-        schemaFields[field] = OnboardingSchema.shape.city;
-        break;
-      case 'state':
-        schemaFields[field] = OnboardingSchema.shape.state;
-        break;
-      case 'zipcode':
-        schemaFields[field] = OnboardingSchema.shape.zipcode;
+      case 'address':
+        schemaFields[field] = OnboardingSchema.shape.address;
         break;
       case 'skillLevel':
         schemaFields[field] = OnboardingSchema.shape.skillLevel;
@@ -163,10 +134,19 @@ export default function MultiStepForm() {
       const currentStepFields = assignments[currentStep] || [];
       setStepFields(currentStepFields);
       
-      const defaultValues = currentStepFields.reduce((acc: Record<string, string>, key: string) => {
-        acc[key] = formData[key] || ""
+      const defaultValues = currentStepFields.reduce((acc: Record<string, any>, key: string) => {
+        if (key === 'address') {
+          acc[key] = formData[key] || {
+            streetAddress: "",
+            city: "",
+            state: "",
+            zipcode: ""
+          }
+        } else {
+          acc[key] = formData[key] || ""
+        }
         return acc
-      }, {} as Record<string, string>)
+      }, {} as Record<string, any>)
       form.reset(defaultValues)
     }
   }, [loading, assignments, currentStep, formData, form])
@@ -198,8 +178,18 @@ export default function MultiStepForm() {
 
   const finalSubmit = (values: Record<string, any>) => {
     const allData = { ...formData, ...values };
+    
+    // Flatten grouped address data for database storage
+    let processedData = { ...allData };
+    if (allData.address && typeof allData.address === 'object') {
+      processedData = {
+        ...processedData,
+        address: allData.address, 
+      };
+    }
+    
     const mappedData = Object.fromEntries(
-      Object.entries(allData).map(([k, v]) => [keyMap[k] || k, v])
+      Object.entries(processedData).map(([k, v]) => [keyMap[k] || k, v])
     );
     updateOnboarding(mappedData as any);
   };
@@ -265,6 +255,90 @@ function DynamicFields({ fields, form }: { fields: string[], form: ReturnType<ty
   const renderField = (field: string) => {
     const config = FIELD_CONFIG[field];
     if (!config) return null;
+
+    if (config.type === "address-group") {
+      return (
+        <div key={field} className="space-y-4">
+          <FormLabel className="text-sm font-medium">
+            {config.label}
+            {config.hint && <span className="text-gray-500 ml-1">{config.hint}</span>}
+          </FormLabel>
+          <div className="space-y-3">
+            <FormField
+              control={form.control}
+              name={`${field}.streetAddress`}
+              render={({ field: f }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Street Address</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...f} 
+                      type="text" 
+                      placeholder="Enter your street address"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-3 gap-3">
+              <FormField
+                control={form.control}
+                name={`${field}.city`}
+                render={({ field: f }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">City</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...f} 
+                        type="text" 
+                        placeholder="City"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`${field}.state`}
+                render={({ field: f }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">State</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...f} 
+                        type="text" 
+                        placeholder="State"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`${field}.zipcode`}
+                render={({ field: f }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Zip Code</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...f} 
+                        type="text" 
+                        placeholder="Zip Code"
+                        maxLength={10}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <FormField
