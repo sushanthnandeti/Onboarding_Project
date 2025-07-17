@@ -144,7 +144,7 @@ export default function MultiStepForm() {
       const currentStepFields = assignments[currentStep] || [];
       setStepFields(currentStepFields);
       
-      const defaultValues = currentStepFields.reduce((acc: Record<string, any>, key: string) => {
+      const defaultValues = currentStepFields.reduce((acc: Record<string, unknown>, key: string) => {
         if (key === 'address') {
           acc[key] = formData[key] || {
             streetAddress: "",
@@ -156,7 +156,7 @@ export default function MultiStepForm() {
           acc[key] = formData[key] || ""
         }
         return acc
-      }, {} as Record<string, any>)
+      }, {} as Record<string, unknown>)
       form.reset(defaultValues)
     }
   }, [loading, assignments, currentStep, formData, form])

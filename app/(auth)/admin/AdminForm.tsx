@@ -16,17 +16,9 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
   const [loading, setLoading] = useState(false);
 
   
-  const getAllAssignedFields = () => {
-    return [...selected[1], ...selected[2], ...selected[3]];
-  };
-
-
   const isFieldAssignedToPage = (fieldKey: string, page: number) => {
     return selected[page as keyof typeof selected].includes(fieldKey);
   };
-
-
-
 
 
   const getFieldAssignedPage = (fieldKey: string): number | null => {
