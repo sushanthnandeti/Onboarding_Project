@@ -57,7 +57,7 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Clear any previous errors
+   
     setError(null);
     
     // Simple check - ensure each page has at least one field
@@ -91,7 +91,7 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
   return (
     <div className="max-w-4xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-6">Admin: Configure Onboarding Pages</h1>
-      <p className="text-gray-600">Assign fields to pages. Each field can only be assigned to one page at a time.</p>
+      <p className="text-gray-600 mb-6">Assign fields to pages. Each field can only be assigned to one page at a time.</p>
       
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-3 gap-8">
