@@ -1,6 +1,6 @@
 "use client";
 
-import { Control, FieldValues } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface FormAddressGroupProps<T extends FieldValues> {
-  name: string;
+  name: Path<T>;
   label: string;
   hint?: string;
   control: Control<T>;
@@ -35,7 +35,7 @@ export function FormAddressGroup<T extends FieldValues>({
       <div className="space-y-3">
         <FormField
           control={control}
-          name={`${name}.streetAddress` as any}
+          name={`${name}.streetAddress` as Path<T>}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium">Street Address</FormLabel>
@@ -53,7 +53,7 @@ export function FormAddressGroup<T extends FieldValues>({
         <div className="grid grid-cols-3 gap-3">
           <FormField
             control={control}
-            name={`${name}.city` as any}
+            name={`${name}.city` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium">City</FormLabel>
@@ -70,7 +70,7 @@ export function FormAddressGroup<T extends FieldValues>({
           />
           <FormField
             control={control}
-            name={`${name}.state` as any}
+            name={`${name}.state` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium">State</FormLabel>
@@ -87,7 +87,7 @@ export function FormAddressGroup<T extends FieldValues>({
           />
           <FormField
             control={control}
-            name={`${name}.zipcode` as any}
+            name={`${name}.zipcode` as Path<T>}
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium">Zip Code</FormLabel>
