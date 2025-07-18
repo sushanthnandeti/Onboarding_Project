@@ -5,11 +5,9 @@ import { Progress } from '@/components/ui/progress'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { OnboardingSchema } from '@/types/onboarding-schema'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { Form} from '@/components/ui/form'
+import { FormInput, FormTextarea, FormSelect, FormRadio, FormAddressGroup } from '@/components/form-components'
 import { useAction } from 'next-safe-action/hooks'
 import { UpdateUserOnboarding } from '@/server/actions/onboarding'
 import { GetOnboardingAssignments } from '@/server/actions/assignments'
@@ -189,7 +187,7 @@ export default function MultiStepForm() {
   const finalSubmit = (values: Record<string, unknown>) => {
     const allData = { ...formData, ...values };
     
-    // Flatten grouped address data for database storage
+   
     let processedData = { ...allData };
     if (allData.address && typeof allData.address === 'object') {
       processedData = {
@@ -267,148 +265,77 @@ function DynamicFields({ fields, form }: { fields: string[], form: ReturnType<ty
     const config = FIELD_CONFIG[field];
     if (!config) return null;
 
-    if (config.type === "address-group") {
-      return (
-        <div key={field} className="space-y-4">
-          <FormLabel className="text-sm font-medium">
-            {config.label}
-            {config.hint && <span className="text-gray-500 ml-1">{config.hint}</span>}
-          </FormLabel>
-          <div className="space-y-3">
-            <FormField
-              control={form.control}
-              name={`${field}.streetAddress`}
-              render={({ field: f }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Street Address</FormLabel>
-                  <FormControl>
-                    <Input 
-                      {...f} 
-                      type="text" 
-                      placeholder="Enter your street address"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-3 gap-3">
-              <FormField
-                control={form.control}
-                name={`${field}.city`}
-                render={({ field: f }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">City</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...f} 
-                        type="text" 
-                        placeholder="City"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`${field}.state`}
-                render={({ field: f }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">State</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...f} 
-                        type="text" 
-                        placeholder="State"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`${field}.zipcode`}
-                render={({ field: f }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">Zip Code</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...f} 
-                        type="text" 
-                        placeholder="Zip Code"
-                        maxLength={10}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
+    switch (config.type) {
+      case "address-group":
+        return (
+          <FormAddressGroup
+            key={field}
+            name={field}
+            label={config.label}
+            hint={config.hint}
+            control={form.control}
+            required
+          />
+        );
 
-    return (
-      <FormField
-        key={field}
-        control={form.control}
-        name={field}
-        render={({ field: f }) => (
-          <FormItem>
-            <FormLabel className="text-sm font-medium">
-              {config.label}
-              {config.hint && <span className="text-gray-500 ml-1">{config.hint}</span>}
-            </FormLabel>
-            <FormControl>
-              {config.type === "textarea" ? (
-                <Textarea 
-                  {...f} 
-                  placeholder={config.placeholder || config.label} 
-                  className="resize-none min-h-[100px]" 
-                />
-              ) : config.type === "input" ? (
-                <Input 
-                  {...f} 
-                  type={config.inputType} 
-                  placeholder={config.label}
-                  maxLength={config.maxLength}
-                />
-              ) : config.type === "select" ? (
-                <select
-                  {...f}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  defaultValue={f.value}
-                >
-                  <option value="">Select your skill level</option>
-                  {config.options?.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              ) : config.type === "radio" ? (
-                <RadioGroup
-                  onValueChange={f.onChange}
-                  defaultValue={f.value}
-                  className="flex flex-row gap-8 mt-2"
-                >
-                  {config.options?.map(option => (
-                    <FormItem key={option} className="flex items-center space-x-2">
-                      <FormControl>
-                        <RadioGroupItem value={option} />
-                      </FormControl>
-                      <FormLabel className="font-normal capitalize">{option}</FormLabel>
-                    </FormItem>
-                  ))}
-                </RadioGroup>
-              ) : null}
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
+      case "textarea":
+        return (
+          <FormTextarea
+            key={field}
+            name={field}
+            label={config.label}
+            placeholder={config.placeholder}
+            hint={config.hint}
+            control={form.control}
+            required
+          />
+        );
+
+      case "input":
+        return (
+          <FormInput
+            key={field}
+            name={field}
+            label={config.label}
+            type={config.inputType}
+            placeholder={config.label}
+            maxLength={config.maxLength}
+            hint={config.hint}
+            control={form.control}
+            required
+          />
+        );
+
+      case "select":
+        return (
+          <FormSelect
+            key={field}
+            name={field}
+            label={config.label}
+            options={config.options || []}
+            placeholder={`Select your ${config.label.toLowerCase()}`}
+            hint={config.hint}
+            control={form.control}
+            required
+          />
+        );
+
+      case "radio":
+        return (
+          <FormRadio
+            key={field}
+            name={field}
+            label={config.label}
+            options={config.options || []}
+            hint={config.hint}
+            control={form.control}
+            required
+          />
+        );
+
+      default:
+        return null;
+    }
   };
 
   return <>{fields.map(renderField)}</>;
