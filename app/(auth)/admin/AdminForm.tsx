@@ -43,7 +43,6 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
         newSelected[1] = newSelected[1].filter(f => f !== fieldKey);
         newSelected[2] = newSelected[2].filter(f => f !== fieldKey);
         newSelected[3] = newSelected[3].filter(f => f !== fieldKey);
-        
       
         newSelected[page] = [...newSelected[page], fieldKey];
       } else {
@@ -57,15 +56,36 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (selected[1].length === 0 || selected[2].length === 0 || selected[3].length === 0) {
-      setError("Each page must have at least one component.");
-      return;
-    }
+    
+    // Clear any previous errors
     setError(null);
+    
+    // Simple check - ensure each page has at least one field
+    const page1Fields = selected[1].length;
+    const page2Fields = selected[2].length;
+    const page3Fields = selected[3].length;
+    
+    console.log('Page 1 fields:', page1Fields);
+    console.log('Page 2 fields:', page2Fields);
+    console.log('Page 3 fields:', page3Fields);
+    
+    if (page1Fields === 0 || page2Fields === 0 || page3Fields === 0) {
+      const errorMsg = "Please select at least one field per page before saving.";
+      console.log('Setting error:', errorMsg);
+      setError(errorMsg);
+      return; 
+    }
+    
+    console.log('Validation passed, proceeding with save');
     setLoading(true);
-    await onSubmit(selected);
-    setLoading(false);
+    try {
+      await onSubmit(selected);
+    } catch (error) {
+      console.error('Save error:', error);
+      setError("Failed to save configuration. You need to select atleast one field per page Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -119,8 +139,13 @@ export default function AdminForm({ assignments, ALL_COMPONENTS, onSubmit }: Adm
         </div>
         
         {error && (
-          <div className="text-red-500 mt-4 p-3 border border-red-200 rounded">
-            {error}
+          <div className="text-red-600 mt-6 p-4 border-2 border-red-400 rounded-lg bg-red-50 flex items-center shadow-sm animate-pulse">
+            <svg className="w-6 h-6 mr-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <span className="font-semibold text-red-800 text-lg">{error}</span>
+            </div>
           </div>
         )}
         
